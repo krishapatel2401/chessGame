@@ -1,7 +1,6 @@
 #include "hw4.h"
 
 void initialize_game(ChessGame *game) {
-    (void)game;
 
     game->moveCount = 0;
     game->capturedCount = 0;
@@ -114,9 +113,70 @@ void fen_to_chessboard(const char *fen, ChessGame *game) {
 }
 
 int parse_move(const char *move, ChessMove *parsed_move) {
-    (void)move;
-    (void)parsed_move;
-    return -999;
+
+    int move_length = strlen(move);
+
+    if ((move_length !=4) && (move_length !=5)){
+        return PARSE_MOVE_INVALID_FORMAT;
+    }
+
+    char start_char = *(move);
+    char dest_char = *(move + 2);
+    if ( ((start_char <'a')||(start_char> 'h')) || ((dest_char < 'a')||(dest_char >'h')) ){
+        return PARSE_MOVE_INVALID_FORMAT;
+    }
+
+    char start_int_pos = *(move + 1);
+    char dest_int_pos = *(move + 3);
+    if ( ((start_int_pos < '1')||(start_int_pos> '8')) || ((dest_int_pos < '1')||(dest_int_pos >'8')) ){
+        return PARSE_MOVE_OUT_OF_BOUNDS;
+    }
+
+    if (move_length == 5){
+        if ( (dest_int_pos != '8') && (dest_int_pos != '1')){
+            return PARSE_MOVE_INVALID_DESTINATION;
+        }
+
+        char promotion_letter = *(move + 4);
+        const char accepted_values[] = "qrbn";
+        char *found = strchr(accepted_values, promotion_letter);
+        if (found == NULL){
+            return PARSE_MOVE_INVALID_PROMOTION;
+        }
+    }
+    
+    // char *source_pos = malloc(3 * sizeof(char));
+    // *(source_pos) = start_char;
+    // *(source_pos + 1) = start_int_pos;
+    // *(source_pos + 2) = '\0';
+
+    // char source_pos[3] /*= malloc(3 * sizeof(char))*/;
+    parsed_move->startSquare[0] = start_char;
+    parsed_move->startSquare[1] = start_int_pos;
+    parsed_move->startSquare[2] = '\0';
+
+    
+    // char *dest_pos = malloc(4 * sizeof(char));
+    // *(dest_pos) = dest_char;
+    // *(dest_pos + 1) = dest_int_pos;
+    // *(dest_pos + 2) = '\0';
+    // if (move_length ==5){
+    //     *(dest_pos + 2) = *(move + 4);
+    //     *(dest_pos + 3) = '\0';
+    // }
+
+    // char *dest_pos = malloc(4 * sizeof(char));
+    parsed_move->endSquare[0] = dest_char;
+    parsed_move->endSquare[1] = dest_int_pos;
+    parsed_move->endSquare[2] = '\0';
+    if (move_length ==5){
+        parsed_move->endSquare[2] = *(move + 4);
+        parsed_move->endSquare[3] = '\0';
+    }
+    
+    // *parsed_move->startSquare = source_pos;
+    // *parsed_move->endSquare = dest_pos;
+    return 0;
 }
 
 int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_move) {
