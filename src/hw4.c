@@ -2,6 +2,42 @@
 
 void initialize_game(ChessGame *game) {
     (void)game;
+
+    game->moveCount = 0;
+    game->capturedCount = 0;
+    game->currentPlayer = 0;
+
+    //setting rnbqkbnr in first row
+    game->chessboard[0][0] = 'r';
+    game->chessboard[0][1] = 'n';
+    game->chessboard[0][2] = 'b';
+    game->chessboard[0][3] = 'q';
+    game->chessboard[0][4] = 'k';
+    game->chessboard[0][5] = 'b';
+    game->chessboard[0][6] = 'n';
+    game->chessboard[0][7] = 'r';
+    for (int col = 0; col < 8; col +=1){
+        game->chessboard[1][col] = 'p';
+    }
+    for (int row = 2; row < 6; row +=1){
+        for (int col=0; col < 8; col +=1){
+            game->chessboard[row][col] = '.';
+        }
+    }
+    for (int col = 0; col < 8; col +=1){
+        game->chessboard[6][col] = 'P';
+    }
+    
+    //setting RNBQKBNR in the last row
+    game->chessboard[7][0] = 'R';
+    game->chessboard[7][1] = 'N';
+    game->chessboard[7][2] = 'B';
+    game->chessboard[7][3] = 'Q';
+    game->chessboard[7][4] = 'K';
+    game->chessboard[7][5] = 'B';
+    game->chessboard[7][6] = 'N';
+    game->chessboard[7][7] = 'R';
+
 }
 
 void chessboard_to_fen(char fen[], ChessGame *game) {
