@@ -145,27 +145,10 @@ int parse_move(const char *move, ChessMove *parsed_move) {
         }
     }
     
-    // char *source_pos = malloc(3 * sizeof(char));
-    // *(source_pos) = start_char;
-    // *(source_pos + 1) = start_int_pos;
-    // *(source_pos + 2) = '\0';
-
-    // char source_pos[3] /*= malloc(3 * sizeof(char))*/;
     parsed_move->startSquare[0] = start_char;
     parsed_move->startSquare[1] = start_int_pos;
     parsed_move->startSquare[2] = '\0';
 
-    
-    // char *dest_pos = malloc(4 * sizeof(char));
-    // *(dest_pos) = dest_char;
-    // *(dest_pos + 1) = dest_int_pos;
-    // *(dest_pos + 2) = '\0';
-    // if (move_length ==5){
-    //     *(dest_pos + 2) = *(move + 4);
-    //     *(dest_pos + 3) = '\0';
-    // }
-
-    // char *dest_pos = malloc(4 * sizeof(char));
     parsed_move->endSquare[0] = dest_char;
     parsed_move->endSquare[1] = dest_int_pos;
     parsed_move->endSquare[2] = '\0';
@@ -174,8 +157,6 @@ int parse_move(const char *move, ChessMove *parsed_move) {
         parsed_move->endSquare[3] = '\0';
     }
     
-    // *parsed_move->startSquare = source_pos;
-    // *parsed_move->endSquare = dest_pos;
     return 0;
 }
 
