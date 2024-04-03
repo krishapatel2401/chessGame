@@ -33,8 +33,54 @@ void initialize_game(ChessGame *game) {
 }
 
 void chessboard_to_fen(char fen[], ChessGame *game) {
-    (void)fen;
-    (void)game;
+    int row_ctr = 0;
+    int col_ctr = 0;
+    int spaces = 0; int index_ctr = 0;
+    
+    while ( (row_ctr<8) && (col_ctr<8)){  //iterating through board
+        char piece = game->chessboard[row_ctr][col_ctr]; //what is the piece at current location
+        if (piece=='.'){ //if there's no piece
+            spaces+=1;
+        }
+        if (piece!='.'){
+            if (spaces==0){  //if there were no spaces before this piece
+                *(fen + index_ctr)  = piece;
+                index_ctr +=1;
+            }
+            if (spaces!=0){ //if there were spaces
+                char num_char = spaces + '0'; //converting int to char
+                *(fen + index_ctr) = num_char;  //adding the number of spaces that were present before this piece
+                index_ctr+=1;
+                spaces = 0;  //set spaces back to 0
+                *(fen + index_ctr) = piece;  //add the piece
+                index_ctr +=1;
+            }
+        }
+        col_ctr +=1;
+        if (col_ctr==8){  //if we reached the end of the row
+            if (spaces!=0){  //if any spaces were encountered after the last piece
+                char num_char = spaces + '0';  //add the number of spaces
+                *(fen + index_ctr) = num_char;
+                index_ctr+=1;
+                spaces = 0;
+            }
+            row_ctr +=1; col_ctr=0;  //update coordinates
+            *(fen + index_ctr) = '/'; index_ctr +=1;
+        }
+    }
+
+    *(fen + index_ctr -1) =' ';  //since a '/' is currently stored there
+    if (game->currentPlayer ==1){ //current black
+        *(fen + index_ctr) = 'w';  //next white
+    }
+    if (game->currentPlayer ==0){ //current white
+        *(fen + index_ctr) = 'b';  //next black
+    }
+    *(fen + index_ctr +1) = '\0';
+    printf("fen string =%s\n",fen);
+    display_chessboard(game);
+
+
 }
 
 bool is_valid_pawn_move(char piece, int src_row, int src_col, int dest_row, int dest_col, ChessGame *game) {
@@ -497,7 +543,7 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
     char row_letters[] = "87654321";
     char col_letters[] = "abcdefgh";
     int move_length = strlen(move->endSquare);
-    printf("move length=%d\n", move_length);
+    // printf("move length=%d\n", move_length);
     char src_row_char = *(move->startSquare+1);
     int src_row =0;
     for (int i = 0; i < 8; i+=1){
@@ -533,8 +579,8 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
         }
     }
 
-    printf("src pos=%s row=%d col=%d\n", move->startSquare, src_row, src_col);
-    printf("dest pos=%s row=%d col=%d\n", move->endSquare, dest_row, dest_col);
+    // printf("src pos=%s row=%d col=%d\n", move->startSquare, src_row, src_col);
+    // printf("dest pos=%s row=%d col=%d\n", move->endSquare, dest_row, dest_col);
 
     char piece = game->chessboard[src_row][src_col];
     int current_player = game->currentPlayer;
@@ -556,14 +602,14 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
         }
         
         char p = game->chessboard[src_row][src_col];
-            printf("the char p 556=%c\n", p);
-            printf("is client =%d\n", is_client);
-            printf("is not present?=%d\n", (strchr(white_pieces, p)==NULL ));
+            // printf("the char p 556=%c\n", p);
+            // printf("is client =%d\n", is_client);
+            // printf("is not present?=%d\n", (strchr(white_pieces, p)==NULL ));
         if (current_player == 0){  //white player
             p = game->chessboard[src_row][src_col];
-            printf("the char p 560=%c\n", p);
+            // printf("the char p 560=%c\n", p);
             if (strchr(white_pieces, (game->chessboard[src_row][src_col]))==NULL ){
-                printf("move wrong color\n");
+                // printf("move wrong color\n");
                 return MOVE_WRONG_COLOR;
             }
             p = game->chessboard[dest_row][dest_col];
@@ -597,6 +643,18 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
         
     } //end of validate move
 
+    
+
+    char captured_piece = game->chessboard[dest_row][dest_col];
+    int capt_count = game->capturedCount;
+    *(game->capturedPieces + capt_count) = captured_piece;
+    *(game->capturedPieces + capt_count + 1) = '\0';
+    game->capturedCount = capt_count + 1;
+    
+    int m_count = game->moveCount;
+    game->moves[m_count] = *move;
+    game->moveCount = m_count +1;
+
     if (move_length==3){
         printf("promoting pawn 607\n");
         char promotion = *(move->endSquare +2);
@@ -613,19 +671,9 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
         game->chessboard[src_row][src_col] = '.';
     }
     if (move_length ==2){
-        game->chessboard[dest_row][dest_col] = piece;
+        game->chessboard[dest_row][dest_col] = game->chessboard[src_row][src_col];
         game->chessboard[src_row][src_col] = '.';
     }
-
-    char captured_piece = game->chessboard[dest_row][dest_col];
-    int capt_count = game->capturedCount;
-    *(game->capturedPieces + capt_count) = captured_piece;
-    *(game->capturedPieces + capt_count + 1) = '\0';
-    game->capturedCount = capt_count + 1;
-    
-    int m_count = game->moveCount;
-    game->moves[m_count] = *move;
-    game->moveCount = m_count +1;
 
     
     if (current_player ==0){
