@@ -494,11 +494,11 @@ int parse_move(const char *move, ChessMove *parsed_move) {
 int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_move) {
     
     //variable declarations
-    char row_letters[] = "abcdefgh";
-    char col_letters[] = "12345678";
+    char row_letters[] = "87654321";
+    char col_letters[] = "abcdefgh";
     int move_length = strlen(move->endSquare);
     printf("move length=%d\n", move_length);
-    char src_row_char = *(move->startSquare);
+    char src_row_char = *(move->startSquare+1);
     int src_row =0;
     for (int i = 0; i < 8; i+=1){
         if ( src_row_char == *(row_letters + i)){
@@ -507,7 +507,7 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
         }
     }
 
-    char src_col_char = *(move->startSquare +1);
+    char src_col_char = *(move->startSquare);
     int src_col = 0;
     for (int i = 0; i < 8; i+=1){
         if ( src_col_char == *(col_letters + i)){
@@ -516,7 +516,7 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
         }
     }
 
-    char dest_row_char = *(move->endSquare);
+    char dest_row_char = *(move->endSquare+1);
     int dest_row = 0;
     for (int i = 0; i < 8; i+=1){
         if ( dest_row_char == *(row_letters + i)){
@@ -524,7 +524,7 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
             break;
         }
     }
-    char dest_col_char = *(move->endSquare +1);
+    char dest_col_char = *(move->endSquare);
     int dest_col = 0;
     for (int i = 0; i < 8; i+=1){
         if ( dest_col_char == *(col_letters + i)){
@@ -532,6 +532,9 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
             break;
         }
     }
+
+    printf("src pos=%s row=%d col=%d\n", move->startSquare, src_row, src_col);
+    printf("dest pos=%s row=%d col=%d\n", move->endSquare, dest_row, dest_col);
 
     char piece = game->chessboard[src_row][src_col];
     int current_player = game->currentPlayer;
