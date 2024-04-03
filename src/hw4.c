@@ -71,10 +71,10 @@ void chessboard_to_fen(char fen[], ChessGame *game) {
 
     *(fen + index_ctr -1) =' ';  //since a '/' is currently stored there
     if (game->currentPlayer ==1){ //current black
-        *(fen + index_ctr) = 'w';  //next white
+        *(fen + index_ctr) = 'b';  
     }
     if (game->currentPlayer ==0){ //current white
-        *(fen + index_ctr) = 'b';  //next black
+        *(fen + index_ctr) = 'w';  
     }
     *(fen + index_ctr +1) = '\0';
     printf("fen string =%s\n",fen);
@@ -579,8 +579,8 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
         }
     }
 
-    // printf("src pos=%s row=%d col=%d\n", move->startSquare, src_row, src_col);
-    // printf("dest pos=%s row=%d col=%d\n", move->endSquare, dest_row, dest_col);
+    printf("src pos=%s row=%d col=%d\n", move->startSquare, src_row, src_col);
+    printf("dest pos=%s row=%d col=%d\n", move->endSquare, dest_row, dest_col);
 
     char piece = game->chessboard[src_row][src_col];
     int current_player = game->currentPlayer;
@@ -607,9 +607,9 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
             // printf("is not present?=%d\n", (strchr(white_pieces, p)==NULL ));
         if (current_player == 0){  //white player
             p = game->chessboard[src_row][src_col];
-            // printf("the char p 560=%c\n", p);
+            printf("the char p 560=%c\n", p);
             if (strchr(white_pieces, (game->chessboard[src_row][src_col]))==NULL ){
-                // printf("move wrong color\n");
+                printf("move wrong color\n");
                 return MOVE_WRONG_COLOR;
             }
             p = game->chessboard[dest_row][dest_col];
