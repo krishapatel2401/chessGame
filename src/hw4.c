@@ -538,6 +538,7 @@ void fen_to_chessboard(const char *fen, ChessGame *game) {
         game->currentPlayer = 0;
     }
     game->capturedCount = 0;
+    game->moveCount = 0;
     
 }
 
