@@ -485,8 +485,61 @@ bool is_valid_move(char piece, int src_row, int src_col, int dest_row, int dest_
 }
 
 void fen_to_chessboard(const char *fen, ChessGame *game) {
-    (void)fen;
-    (void)game;
+
+    int row_ctr = 0;  int col_ctr = 0;
+    int spaces = 0; int index = 0; 
+    char letter=' '; 
+    // int exist_pieces = 0;
+    
+    
+    while ( (row_ctr<8) && (col_ctr<8)){
+        letter = *(fen + index);
+        index +=1;
+        // printf("letter=%c  ind=%d    ",letter, index-1);
+        if ( (letter >='0') && (letter <='8')){ //letter is (char) 0 to 8
+            spaces = (int)(letter - '0');
+            // printf("spaces.1=%d ", spaces);
+            while (spaces >0){
+                // printf("spaces=%d ", spaces);
+                game->chessboard[row_ctr][col_ctr] = '.';
+                spaces -=1;
+                col_ctr +=1;
+                if (col_ctr==8){
+                    row_ctr +=1; col_ctr=0;
+                    // printf("\n");
+                }
+            }
+            
+        }
+      
+        // if (letter =='/'){  //just ignore this and move on
+            
+        // }
+        if (letter ==' '){  //space character means fen string is kinda over for the main part
+            // letter = *(fen + strlen(fen));  //store the last char, i.e 'b' or 'w'
+            break;
+        }
+        if ( ((letter>'a')&&(letter<'z')) || ((letter>'A')&&(letter<'Z'))){ //if the letter is alphabetical, i.e. a chess piece
+            game->chessboard[row_ctr][col_ctr] = letter;
+            // exist_pieces +=1;
+            col_ctr +=1;
+            if (col_ctr==8){
+                row_ctr +=1; col_ctr=0;
+                // printf("\n");
+            }
+        }
+        
+    }
+    int length = strlen(fen) -1;
+    letter = *(fen + length);  //store the last char, i.e 'b' or 'w'
+    if (letter =='b'){
+        game->currentPlayer = 1;
+    }
+    if (letter == 'w'){
+        game->currentPlayer = 0;
+    }
+    game->capturedCount = 0;
+    
 }
 
 int parse_move(const char *move, ChessMove *parsed_move) {
