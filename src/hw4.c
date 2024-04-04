@@ -491,7 +491,6 @@ void fen_to_chessboard(const char *fen, ChessGame *game) {
     char letter=' '; 
     // int exist_pieces = 0;
     
-    
     while ( (row_ctr<8) && (col_ctr<8)){
         letter = *(fen + index);
         index +=1;
@@ -641,7 +640,7 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
     const char black_pieces[] = "rnbqkp";
 
     // printf("is client=%d\n",is_client);
-    //     printf("current player=%d\n", current_player);
+    // printf("current player=%d\n", current_player);
 
     if(validate_move){
         //error checks go here
@@ -756,18 +755,84 @@ int receive_command(ChessGame *game, const char *message, int socketfd, bool is_
 }
 
 int save_game(ChessGame *game, const char *username, const char *db_filename) {
-    (void)game;
-    (void)username;
-    (void)db_filename;
-    return -999;
+    
+    if ( (username==NULL) || ( strchr(username, ' ')!=NULL)){  //the username isn't in given format
+        return -1;
+    }
+    FILE *fptr;
+    fptr = fopen(db_filename, "a");
+    if (fptr==NULL){
+        printf("file can't be opened\n");
+        return -1;
+    }
+    else{
+        fprintf(fptr,"%s:", username);
+        // fprintf(fptr, ":");
+        char fen[76]= ""; 
+        //size has been set to 76 becuase max characters from board=8*8=64, max '/'=8, space and player=2, null character=1
+        //so 64+8+2+1 = 75, and i've addded an extra character just in case
+        chessboard_to_fen(fen, game);
+        fprintf(fptr,"%s\n", fen);
+        // fprintf(fptr, "\n");
+        fclose(fptr);
+        return 0;
+    }
+
+    return -1;
 }
 
 int load_game(ChessGame *game, const char *username, const char *db_filename, int save_number) {
-    (void)game;
-    (void)username;
-    (void)db_filename;
-    (void)save_number;
-    return -999;
+    
+    if ( (username==NULL) || ( strchr(username, ' ')!=NULL) || (save_number<1)){  //the username isn't in given format
+        return -1;
+    }
+    int username_match= 0;
+    int username_length = strlen(username);
+    int str_length = username_length + 77; //since the valid complete string we're looking for can have max this size
+    char str[str_length];
+    const char delimiter = ':';
+    char fen[76] = ""; //reason in the previous function
+    int fen_ind = 0;
+
+    FILE *fptr;
+    fptr = fopen(db_filename, "r");
+    if (fptr==NULL){
+        printf("can't open file\n");
+        return -1;
+    }
+    else{
+
+        while( fgets(str, str_length, fptr) != NULL){
+            char *str_copy = strdup(str);
+            char *token = strtok(str_copy, &delimiter);  //extracting given username
+            if ( (token != NULL) && (strcmp(token, username) ==0) ){ //the extracted and given usernames match
+                username_match +=1;
+                
+                if (username_match ==save_number){ //only then we'll pick and store the fen
+                    char *colon_pos = strchr(str, ':'); //searching for the position of the colon
+
+                    if (colon_pos != NULL){  //if we find the colon
+                        colon_pos +=1; //move to a char after it, since fen starts from there
+
+                        while( (*colon_pos!='\n') && (*colon_pos !='\0')){
+                            *(fen + fen_ind) = *colon_pos;
+                            colon_pos +=1;    
+                            fen_ind +=1;
+                        }  //stored all letters
+                        *(fen + fen_ind) = '\0'; //adding null terminator
+                        fen_to_chessboard(fen, game);
+                        return 0;
+                    }
+                }
+            }
+        }
+
+
+        fclose(fptr);
+    }
+
+
+    return -1;
 }
 
 void display_chessboard(ChessGame *game) {
