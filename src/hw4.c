@@ -644,13 +644,16 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
     // printf("current player=%d\n", current_player);
 
     if(validate_move){
+        printf("in validate move\n");
         //error checks go here
         /*printf("is client=%d\n",is_client); //1
         printf("current player=%d\n", current_player); //0  */
         if (is_client == current_player){  //since white in is_client is true, but white in current_player is 0
+        printf("here out of turn\n");
             return MOVE_OUT_OF_TURN;
         }
         if (piece== '.'){
+            printf("here nothing\n");
             return MOVE_NOTHING;
         }
         
@@ -663,36 +666,44 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
             printf("the char p 560=%c\n", p);
             if (strchr(white_pieces, (game->chessboard[src_row][src_col]))==NULL ){
                 printf("move wrong color\n");
+                
                 return MOVE_WRONG_COLOR;
             }
             p = game->chessboard[dest_row][dest_col];
             if (strchr(white_pieces, p) != NULL){
+                printf("here sus\n");
                 return MOVE_SUS; //trying to capture your own piece
             }
         }
         if (current_player == 1){  //black player
             p = game->chessboard[src_row][src_col];
             if (strchr(black_pieces, (game->chessboard[src_row][src_col]))==NULL ){
+                printf("here wrong color\n");
                 return MOVE_WRONG_COLOR;
             }
             p = game->chessboard[dest_row][dest_col];
             if (strchr(black_pieces, p) != NULL){
+                printf("here sus.2\n");
                 return MOVE_SUS; //trying to capture your own piece
             }
         }
 
         if ( (move_length==3) && (piece != 'p') && (piece !='P')){ //trying to promote a piece that isn't a pawn
+        printf("here not a pawn\n");
             return MOVE_NOT_A_PAWN;
         }
         if (move_length==2){
             if ( ((piece=='p') && (dest_col==7)) || ( (piece=='P') && (dest_col==0)) ){
+                printf("here missing promotion\n");
                 return MOVE_MISSING_PROMOTION;  //piece is pawn but you ain't promoting
             }
         }
+        printf("here 693\n");
 
         if (is_valid_move(piece, src_row, src_col, dest_row, dest_col, game) == false){
             return MOVE_WRONG;
         }
+        printf("here 698\n");
         
     } //end of validate move
 
@@ -758,10 +769,13 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
 
     if ( strcmp(token, "/move") ==0){
         token = strtok(NULL, &delimiter); //get the move string
+        printf("move token is=%s\n", token);
         ChessMove move;
         
         if ( parse_move(token, &move) ==0){ //the move is valid
+            printf("move valid\n");
             if (make_move(game, &move, is_client, true) ==0){
+                printf("move successful\n");
                 send(socketfd, message, strlen(message), 0);
                 free(message_copy);
                 return COMMAND_MOVE;
@@ -840,10 +854,10 @@ int receive_command(ChessGame *game, const char *message, int socketfd, bool is_
     const char delimiter = ' ';
     char *token = strtok(message_copy, &delimiter);
     
-    printf("here 822\n");
+    // printf("here 822\n");
     if ( strcmp(token, "/move") ==0){
         token = strtok(NULL, &delimiter); //get the move string
-        printf("token at 828=%s\n", token);
+        // printf("token at 828=%s\n", token);
         ChessMove move;
         printf("here 826\n");
         if ( parse_move(token, &move) ==0){ //the move is valid
@@ -853,12 +867,12 @@ int receive_command(ChessGame *game, const char *message, int socketfd, bool is_
             return COMMAND_MOVE;
             
         }
-        printf("here 832\n");
         free(message_copy);
         return COMMAND_ERROR;
     }
     printf("here 835\n");
     if ( strcmp(token, "/forfeit") ==0){
+        close(socketfd);
         free(message_copy);
         return COMMAND_FORFEIT;
     }
@@ -873,25 +887,25 @@ int receive_command(ChessGame *game, const char *message, int socketfd, bool is_
         }
     }
     printf("here 848\n");
-    // if ( strcmp(token, "/load") ==0){
-    //     printf("message = %s\n", message);
-    //     token = strtok(NULL, &delimiter); //getting the username
-    //     char *name = strdup(token);  //creating a copy of the username
-    //     printf("here 822.2\n");
-    //     token = strtok(NULL, &delimiter);
-    //     if (token==NULL){
-    //         return COMMAND_ERROR;
-    //     }
-    //     printf("token num=%s\n", token);
-    //     int num = atoi(token);
-    //     printf("num is=%d\n", num);
-    //     printf("here 822.3\n");
-    //     if ( load_game(game, name, "game_database.txt", num) ==0){
-    //         printf("here 856\n");
-    //         return COMMAND_LOAD;
-    //     }
-    //     return COMMAND_ERROR;
-    // }
+    if ( strcmp(token, "/load") ==0){
+        printf("message = %s\n", message);
+        token = strtok(NULL, &delimiter); //getting the username
+        char *name = strdup(token);  //creating a copy of the username
+        printf("here 822.2\n");
+        token = strtok(NULL, &delimiter);
+        if (token==NULL){
+            return COMMAND_ERROR;
+        }
+        printf("token num=%s\n", token);
+        int num = atoi(token);
+        printf("num is=%d\n", num);
+        printf("here 822.3\n");
+        if ( load_game(game, name, "game_database.txt", num) ==0){
+            printf("here 856\n");
+            return COMMAND_LOAD;
+        }
+        return COMMAND_ERROR;
+    }
     printf("here 859\n");
 
     free(message_copy);

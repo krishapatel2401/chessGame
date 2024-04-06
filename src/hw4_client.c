@@ -43,24 +43,33 @@ int main() {
         memset(buffer, 0, BUFFER_SIZE);
         fgets(buffer, BUFFER_SIZE, stdin);
         buffer[strlen(buffer)-1] = '\0';
-        if (strcmp(buffer, "quit") == 0) {   
-            printf("[Client] Quitting...\n");
-            send(connfd, buffer, strlen(buffer), 0);
+        int new_answer = send_command(&game, buffer, connfd, true);
+        while( (new_answer == COMMAND_ERROR) || (new_answer == COMMAND_UNKNOWN)){
+            printf("[Client] Enter message: ");
+            memset(buffer, 0, BUFFER_SIZE);
+            fgets(buffer, BUFFER_SIZE, stdin);
+            buffer[strlen(buffer)-1] = '\0';
+            new_answer = send_command(&game, buffer, connfd, false);
+        }
+        if (new_answer == COMMAND_FORFEIT){
+            printf("[Client] Client chatter quitting...\n");
+            // send_command(&game, buffer, connfd, false);
             break;
         }
-        send(connfd, buffer, strlen(buffer), 0);
+
         memset(buffer, 0, BUFFER_SIZE);
         int nbytes = read(connfd, buffer, BUFFER_SIZE);
         if (nbytes <= 0) {
             perror("[Client] read() failed.");
             exit(EXIT_FAILURE);
         }
-        printf("[Client] Received from server: %s\n", buffer);
-        if (strcmp(buffer, "quit") == 0) {
-            printf("[Client] Server chatter quitting...\n");
-            break;  
+        
+        printf("[Server] Received from client: %s\n", buffer);
+        int answer = receive_command(&game, buffer, connfd, false );
+        if (answer == COMMAND_FORFEIT){
+            printf("[Client] Client chatter quitting...\n");
+            break;
         }
-
 
         // Fill this in
     }

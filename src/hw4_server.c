@@ -45,33 +45,49 @@ int main() {
         perror("accept");
         exit(EXIT_FAILURE);
     }
+    ChessGame game;
+    initialize_game(&game);
+    display_chessboard(&game);
 
     INFO("Server accepted connection");
+    
 
     while (1) {
 
-         memset(buffer, 0, BUFFER_SIZE);
+        memset(buffer, 0, BUFFER_SIZE);
         int nbytes = read(connfd, buffer, BUFFER_SIZE);
         if (nbytes <= 0) {
             perror("[Server] read() failed.");
             exit(EXIT_FAILURE);
         }
+        
         printf("[Server] Received from client: %s\n", buffer);
-        if (strcmp(buffer, "quit") == 0) {
+        int answer = receive_command(&game, buffer, connfd, false );
+        if (answer == COMMAND_FORFEIT){
             printf("[Server] Client chatter quitting...\n");
             break;
         }
+        
 
         printf("[Server] Enter message: ");
         memset(buffer, 0, BUFFER_SIZE);
         fgets(buffer, BUFFER_SIZE, stdin);
         buffer[strlen(buffer)-1] = '\0';
-        if (strcmp(buffer, "quit") == 0) {
-            printf("[Server] Quitting...\n");
-            send(connfd, buffer, strlen(buffer), 0);
+        int new_answer = send_command(&game, buffer, connfd, false);
+        while( (new_answer == COMMAND_ERROR) || (new_answer == COMMAND_UNKNOWN)){
+            printf("[Server] Enter message: ");
+            memset(buffer, 0, BUFFER_SIZE);
+            fgets(buffer, BUFFER_SIZE, stdin);
+            buffer[strlen(buffer)-1] = '\0';
+            new_answer = send_command(&game, buffer, connfd, false);
+        }
+        if (new_answer == COMMAND_FORFEIT){
+            printf("[Server] Client chatter quitting...\n");
+            // send_command(&game, buffer, connfd, false);
+            close(connfd);
             break;
         }
-        send(connfd, buffer, strlen(buffer), 0);
+
         // Fill this in
     }
 
