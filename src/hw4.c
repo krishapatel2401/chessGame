@@ -646,8 +646,8 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
     if(validate_move){
         printf("in validate move\n");
         //error checks go here
-        /*printf("is client=%d\n",is_client); //1
-        printf("current player=%d\n", current_player); //0  */
+        printf("is client=%d\n",is_client); //1
+        printf("current player=%d\n", current_player); //0  
         if (is_client == current_player){  //since white in is_client is true, but white in current_player is 0
         printf("here out of turn\n");
             return MOVE_OUT_OF_TURN;
@@ -693,22 +693,22 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
             return MOVE_NOT_A_PAWN;
         }
         if (move_length==2){
-            if ( ((piece=='p') && (dest_col==7)) || ( (piece=='P') && (dest_col==0)) ){
+            if ( ((piece=='p') && (dest_row==7)) || ( (piece=='P') && (dest_row==0)) ){
                 printf("here missing promotion\n");
                 return MOVE_MISSING_PROMOTION;  //piece is pawn but you ain't promoting
             }
         }
-        printf("here 693\n");
+        // printf("here 693\n");
 
         if (is_valid_move(piece, src_row, src_col, dest_row, dest_col, game) == false){
             return MOVE_WRONG;
         }
-        printf("here 698\n");
+        // printf("here 698\n");
         
     } //end of validate move
 
     
-    printf("here 700\n");
+    // printf("here 700\n");
 
     char captured_piece = game->chessboard[dest_row][dest_col];
     int capt_count = game->capturedCount;
@@ -763,8 +763,10 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
 int send_command(ChessGame *game, const char *message, int socketfd, bool is_client) {
 
     char *message_copy = strdup(message);
+    printf("message copy.1=%s\n", message_copy);
     const char delimiter = ' ';
     char *token = strtok(message_copy, &delimiter);
+    printf("token.1=%s\n", token);
     
 
     if ( strcmp(token, "/move") ==0){

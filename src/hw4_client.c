@@ -44,12 +44,12 @@ int main() {
         fgets(buffer, BUFFER_SIZE, stdin);
         buffer[strlen(buffer)-1] = '\0';
         int new_answer = send_command(&game, buffer, connfd, true);
-        while( (new_answer == COMMAND_ERROR) || (new_answer == COMMAND_UNKNOWN)){
+        while( (new_answer == COMMAND_ERROR) || (new_answer == COMMAND_UNKNOWN) || (new_answer== COMMAND_DISPLAY)){
             printf("[Client] Enter message: ");
             memset(buffer, 0, BUFFER_SIZE);
             fgets(buffer, BUFFER_SIZE, stdin);
             buffer[strlen(buffer)-1] = '\0';
-            new_answer = send_command(&game, buffer, connfd, false);
+            new_answer = send_command(&game, buffer, connfd, true);
         }
         if (new_answer == COMMAND_FORFEIT){
             printf("[Client] Client chatter quitting...\n");
@@ -65,7 +65,7 @@ int main() {
         }
         
         printf("[Server] Received from client: %s\n", buffer);
-        int answer = receive_command(&game, buffer, connfd, false );
+        int answer = receive_command(&game, buffer, connfd, true );
         if (answer == COMMAND_FORFEIT){
             printf("[Client] Client chatter quitting...\n");
             break;
