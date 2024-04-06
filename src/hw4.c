@@ -697,6 +697,7 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
     } //end of validate move
 
     
+    printf("here 700\n");
 
     char captured_piece = game->chessboard[dest_row][dest_col];
     int capt_count = game->capturedCount;
@@ -705,8 +706,12 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
     game->capturedCount = capt_count + 1;
     
     int m_count = game->moveCount;
-    game->moves[m_count] = *move;
+    printf("here 709\n");
+    game->moves[game->moveCount] = *move;
+    
+    printf("here 711\n");
     game->moveCount = m_count +1;
+    printf("here 713\n");
 
     if (move_length==3){
         printf("promoting pawn 607\n");
@@ -740,10 +745,6 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
 }
 
 int send_command(ChessGame *game, const char *message, int socketfd, bool is_client) {
-
-    // char buffer[BUFFER_SIZE] = {0};
-
-    printf("is_client=%d\n", is_client);
 
     char *message_copy = strdup(message);
     const char delimiter = ' ';
@@ -785,6 +786,9 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
         token = strtok(NULL, &delimiter); //getting the username
         char *name = strdup(token);  //creating a copy of the username
         token = strtok(NULL, &delimiter);
+        if (token==NULL){
+            return COMMAND_ERROR;
+        }
         int num = atoi(token);
         if ( load_game(game, name, "game_database.txt", num) ==0){
             send(socketfd, message, strlen(message), 0);
@@ -807,12 +811,73 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
     return COMMAND_UNKNOWN;
 }
 
+// int receive_command(ChessGame *game, const char *message, int socketfd, bool is_client) {
+//     (void)game;
+//     (void)message;
+//     (void)socketfd;
+//     (void)is_client;
+//     return -999;
+// }
+
 int receive_command(ChessGame *game, const char *message, int socketfd, bool is_client) {
-    (void)game;
-    (void)message;
-    (void)socketfd;
-    (void)is_client;
-    return -999;
+
+    printf("socket fd=%d\n", socketfd);
+
+    char *message_copy = strdup(message);
+    const char delimiter = ' ';
+    char *token = strtok(message_copy, &delimiter);
+    
+    printf("here 822\n");
+    if ( strcmp(token, "/move") ==0){
+        token = strtok(NULL, &delimiter); //get the move string
+        printf("token at 828=%s\n", token);
+        ChessMove move;
+        printf("here 826\n");
+        if ( parse_move(token, &move) ==0){ //the move is valid
+            printf("here 832\n");
+            make_move(game, &move, is_client, false);
+            return COMMAND_MOVE;
+            
+        }
+        printf("here 832\n");
+        return COMMAND_ERROR;
+    }
+    printf("here 835\n");
+    if ( strcmp(token, "/forfeit") ==0){
+        return COMMAND_FORFEIT;
+    }
+    printf("here 839\n");
+    if ( strcmp(token, "/import") ==0){
+        if (is_client == true){
+            char *space = strchr(message, ' ');
+            space +=1; //accessing the string from the char after the space
+            fen_to_chessboard(space, game);
+            return COMMAND_IMPORT;
+        }
+    }
+    printf("here 848\n");
+    // if ( strcmp(token, "/load") ==0){
+    //     printf("message = %s\n", message);
+    //     token = strtok(NULL, &delimiter); //getting the username
+    //     char *name = strdup(token);  //creating a copy of the username
+    //     printf("here 822.2\n");
+    //     token = strtok(NULL, &delimiter);
+    //     if (token==NULL){
+    //         return COMMAND_ERROR;
+    //     }
+    //     printf("token num=%s\n", token);
+    //     int num = atoi(token);
+    //     printf("num is=%d\n", num);
+    //     printf("here 822.3\n");
+    //     if ( load_game(game, name, "game_database.txt", num) ==0){
+    //         printf("here 856\n");
+    //         return COMMAND_LOAD;
+    //     }
+    //     return COMMAND_ERROR;
+    // }
+    printf("here 859\n");
+
+    return -1;
 }
 
 int save_game(ChessGame *game, const char *username, const char *db_filename) {
