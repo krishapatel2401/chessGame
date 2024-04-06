@@ -6,6 +6,8 @@ int main() {
     int opt = 1;
     int addrlen = sizeof(address);
 
+    char buffer[BUFFER_SIZE] = {0};
+
     // Create socket
     if ((listenfd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("socket failed");
@@ -47,6 +49,29 @@ int main() {
     INFO("Server accepted connection");
 
     while (1) {
+
+         memset(buffer, 0, BUFFER_SIZE);
+        int nbytes = read(connfd, buffer, BUFFER_SIZE);
+        if (nbytes <= 0) {
+            perror("[Server] read() failed.");
+            exit(EXIT_FAILURE);
+        }
+        printf("[Server] Received from client: %s\n", buffer);
+        if (strcmp(buffer, "quit") == 0) {
+            printf("[Server] Client chatter quitting...\n");
+            break;
+        }
+
+        printf("[Server] Enter message: ");
+        memset(buffer, 0, BUFFER_SIZE);
+        fgets(buffer, BUFFER_SIZE, stdin);
+        buffer[strlen(buffer)-1] = '\0';
+        if (strcmp(buffer, "quit") == 0) {
+            printf("[Server] Quitting...\n");
+            send(connfd, buffer, strlen(buffer), 0);
+            break;
+        }
+        send(connfd, buffer, strlen(buffer), 0);
         // Fill this in
     }
 

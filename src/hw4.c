@@ -740,11 +740,71 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
 }
 
 int send_command(ChessGame *game, const char *message, int socketfd, bool is_client) {
-    (void)game;
-    (void)message;
-    (void)socketfd;
-    (void)is_client;
-    return -999;
+
+    // char buffer[BUFFER_SIZE] = {0};
+
+    printf("is_client=%d\n", is_client);
+
+    char *message_copy = strdup(message);
+    const char delimiter = ' ';
+    char *token = strtok(message_copy, &delimiter);
+    
+
+    if ( strcmp(token, "/move") ==0){
+        token = strtok(NULL, &delimiter); //get the move string
+        ChessMove move;
+        
+        if ( parse_move(token, &move) ==0){ //the move is valid
+            if (make_move(game, &move, is_client, true) ==0){
+                send(socketfd, message, strlen(message), 0);
+                return COMMAND_MOVE;
+            }
+        }
+        return COMMAND_ERROR;
+    }
+
+    if ( strcmp(token, "/forfeit") ==0){
+        send(socketfd, message, strlen(message), 0);
+        return COMMAND_FORFEIT;
+    }
+    if ( strcmp(token, "/chessboard") ==0){
+        display_chessboard(game);
+        return COMMAND_DISPLAY;
+    }
+    if ( strcmp(token, "/import") ==0){
+        if (is_client == false){
+            char *space = strchr(message, ' ');
+            space +=1; //accessing the string from the char after the space
+            fen_to_chessboard(space, game);
+            send(socketfd, message, strlen(message), 0);
+            return COMMAND_IMPORT;
+        }
+    }
+
+    if ( strcmp(token, "/load") ==0){
+        token = strtok(NULL, &delimiter); //getting the username
+        char *name = strdup(token);  //creating a copy of the username
+        token = strtok(NULL, &delimiter);
+        int num = atoi(token);
+        if ( load_game(game, name, "game_database.txt", num) ==0){
+            send(socketfd, message, strlen(message), 0);
+            return COMMAND_LOAD;
+        }
+        return COMMAND_ERROR;
+    }
+
+    if ( strcmp(token, "/save") ==0){
+        token = strtok(NULL, &delimiter);
+        if ( save_game(game, token, "game_database.txt") ==0){
+            return COMMAND_SAVE;
+        }
+        return COMMAND_ERROR;
+    }
+
+
+
+
+    return COMMAND_UNKNOWN;
 }
 
 int receive_command(ChessGame *game, const char *message, int socketfd, bool is_client) {

@@ -14,6 +14,8 @@ int main() {
     int connfd = 0;
     struct sockaddr_in serv_addr;
 
+    char buffer[BUFFER_SIZE] = {0};
+
     // Connect to the server
     if ((connfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("socket failed");
@@ -36,6 +38,30 @@ int main() {
     display_chessboard(&game);
 
     while (1) {
+
+        printf("[Client] Enter message: ");
+        memset(buffer, 0, BUFFER_SIZE);
+        fgets(buffer, BUFFER_SIZE, stdin);
+        buffer[strlen(buffer)-1] = '\0';
+        if (strcmp(buffer, "quit") == 0) {   
+            printf("[Client] Quitting...\n");
+            send(connfd, buffer, strlen(buffer), 0);
+            break;
+        }
+        send(connfd, buffer, strlen(buffer), 0);
+        memset(buffer, 0, BUFFER_SIZE);
+        int nbytes = read(connfd, buffer, BUFFER_SIZE);
+        if (nbytes <= 0) {
+            perror("[Client] read() failed.");
+            exit(EXIT_FAILURE);
+        }
+        printf("[Client] Received from server: %s\n", buffer);
+        if (strcmp(buffer, "quit") == 0) {
+            printf("[Client] Server chatter quitting...\n");
+            break;  
+        }
+
+
         // Fill this in
     }
 
