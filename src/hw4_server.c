@@ -74,7 +74,8 @@ int main() {
         fgets(buffer, BUFFER_SIZE, stdin);
         buffer[strlen(buffer)-1] = '\0';
         int new_answer = send_command(&game, buffer, connfd, false);
-        while( (new_answer == COMMAND_ERROR) || (new_answer == COMMAND_UNKNOWN) || (new_answer == COMMAND_DISPLAY)){
+        while( (new_answer == COMMAND_ERROR) || (new_answer == COMMAND_UNKNOWN) || (new_answer == COMMAND_DISPLAY) ||
+                (new_answer == COMMAND_SAVE)){
             printf("[Server] Enter message: ");
             memset(buffer, 0, BUFFER_SIZE);
             fgets(buffer, BUFFER_SIZE, stdin);

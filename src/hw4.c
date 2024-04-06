@@ -535,6 +535,7 @@ void fen_to_chessboard(const char *fen, ChessGame *game) {
         game->currentPlayer = 1;
     }
     if (letter == 'w'){
+        printf("setting currentplayer to 0\n");
         game->currentPlayer = 0;
     }
     game->capturedCount = 0;
