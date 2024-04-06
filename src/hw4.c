@@ -706,11 +706,16 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
     game->capturedCount = capt_count + 1;
     
     int m_count = game->moveCount;
-    printf("here 709\n");
-    game->moves[game->moveCount] = *move;
+    printf("game movecount=%d\n", game->moveCount);
+    // printf("here 709\n");
+    printf("move null=%d\n", (move==NULL));
+    // game->moves[game->moveCount] = *move;
+    
+
     
     printf("here 711\n");
     game->moveCount = m_count +1;
+    printf("game movecount=%d\n", game->moveCount);
     printf("here 713\n");
 
     if (move_length==3){
@@ -758,18 +763,22 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
         if ( parse_move(token, &move) ==0){ //the move is valid
             if (make_move(game, &move, is_client, true) ==0){
                 send(socketfd, message, strlen(message), 0);
+                free(message_copy);
                 return COMMAND_MOVE;
             }
         }
+        free(message_copy);
         return COMMAND_ERROR;
     }
 
     if ( strcmp(token, "/forfeit") ==0){
         send(socketfd, message, strlen(message), 0);
+        free(message_copy);
         return COMMAND_FORFEIT;
     }
     if ( strcmp(token, "/chessboard") ==0){
         display_chessboard(game);
+        free(message_copy);
         return COMMAND_DISPLAY;
     }
     if ( strcmp(token, "/import") ==0){
@@ -778,6 +787,7 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
             space +=1; //accessing the string from the char after the space
             fen_to_chessboard(space, game);
             send(socketfd, message, strlen(message), 0);
+            free(message_copy);
             return COMMAND_IMPORT;
         }
     }
@@ -787,27 +797,30 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
         char *name = strdup(token);  //creating a copy of the username
         token = strtok(NULL, &delimiter);
         if (token==NULL){
+            free(message_copy);
             return COMMAND_ERROR;
         }
         int num = atoi(token);
         if ( load_game(game, name, "game_database.txt", num) ==0){
             send(socketfd, message, strlen(message), 0);
+            free(message_copy);
             return COMMAND_LOAD;
         }
+        free(message_copy);
         return COMMAND_ERROR;
     }
 
     if ( strcmp(token, "/save") ==0){
         token = strtok(NULL, &delimiter);
         if ( save_game(game, token, "game_database.txt") ==0){
+            free(message_copy);
             return COMMAND_SAVE;
         }
+        free(message_copy);
         return COMMAND_ERROR;
     }
 
-
-
-
+    free(message_copy);
     return COMMAND_UNKNOWN;
 }
 
@@ -836,14 +849,17 @@ int receive_command(ChessGame *game, const char *message, int socketfd, bool is_
         if ( parse_move(token, &move) ==0){ //the move is valid
             printf("here 832\n");
             make_move(game, &move, is_client, false);
+            free(message_copy);
             return COMMAND_MOVE;
             
         }
         printf("here 832\n");
+        free(message_copy);
         return COMMAND_ERROR;
     }
     printf("here 835\n");
     if ( strcmp(token, "/forfeit") ==0){
+        free(message_copy);
         return COMMAND_FORFEIT;
     }
     printf("here 839\n");
@@ -852,6 +868,7 @@ int receive_command(ChessGame *game, const char *message, int socketfd, bool is_
             char *space = strchr(message, ' ');
             space +=1; //accessing the string from the char after the space
             fen_to_chessboard(space, game);
+            free(message_copy);
             return COMMAND_IMPORT;
         }
     }
@@ -877,6 +894,7 @@ int receive_command(ChessGame *game, const char *message, int socketfd, bool is_
     // }
     printf("here 859\n");
 
+    free(message_copy);
     return -1;
 }
 
