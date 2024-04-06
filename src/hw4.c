@@ -724,10 +724,10 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
     
 
     
-    printf("here 711\n");
+    // printf("here 711\n");
     game->moveCount = m_count +1;
     printf("game movecount=%d\n", game->moveCount);
-    printf("here 713\n");
+    // printf("here 713\n");
 
     if (move_length==3){
         printf("promoting pawn 607\n");
@@ -838,13 +838,6 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
     return COMMAND_UNKNOWN;
 }
 
-// int receive_command(ChessGame *game, const char *message, int socketfd, bool is_client) {
-//     (void)game;
-//     (void)message;
-//     (void)socketfd;
-//     (void)is_client;
-//     return -999;
-// }
 
 int receive_command(ChessGame *game, const char *message, int socketfd, bool is_client) {
 
