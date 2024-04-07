@@ -633,8 +633,8 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
         }
     }
 
-    printf("src pos=%s row=%d col=%d\n", move->startSquare, src_row, src_col);
-    printf("dest pos=%s row=%d col=%d\n", move->endSquare, dest_row, dest_col);
+    // printf("src pos=%s row=%d col=%d\n", move->startSquare, src_row, src_col);
+    // printf("dest pos=%s row=%d col=%d\n", move->endSquare, dest_row, dest_col);
 
     char piece = game->chessboard[src_row][src_col];
     int current_player = game->currentPlayer;
@@ -727,7 +727,7 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
     int m_count = game->moveCount;
     printf("game movecount=%d\n", game->moveCount);
     // printf("here 709\n");
-    printf("move null=%d\n", (move==NULL));
+    // printf("move null=%d\n", (move==NULL));
     *(game->moves + game->moveCount) = *move;
     
 
@@ -873,13 +873,13 @@ int receive_command(ChessGame *game, const char *message, int socketfd, bool is_
         free(message_copy);
         return COMMAND_ERROR;
     }
-    printf("here 835\n");
+    // printf("here 835\n");
     if ( strcmp(token, "/forfeit") ==0){
         close(socketfd);
         free(message_copy);
         return COMMAND_FORFEIT;
     }
-    printf("here 839\n");
+    // printf("here 839\n");
     if ( strcmp(token, "/import") ==0){
         if (is_client == true){
             char *space = strchr(message, ' ');
