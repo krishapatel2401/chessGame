@@ -712,10 +712,20 @@ int make_move(ChessGame *game, ChessMove *move, bool is_client, bool validate_mo
     // printf("here 700\n");
 
     char captured_piece = game->chessboard[dest_row][dest_col];
-    int capt_count = game->capturedCount;
+    if (captured_piece != '.'){
+       int capt_count = game->capturedCount;
     *(game->capturedPieces + capt_count) = captured_piece;
     *(game->capturedPieces + capt_count + 1) = '\0';
+    printf("captured pieces=%s\n", game->capturedPieces);
     game->capturedCount = capt_count + 1;
+    printf("captured count=%d\n", game->capturedCount); 
+    }
+    // int capt_count = game->capturedCount;
+    // *(game->capturedPieces + capt_count) = captured_piece;
+    // *(game->capturedPieces + capt_count + 1) = '\0';
+    printf("captured pieces=%s\n", game->capturedPieces);
+    // game->capturedCount = capt_count + 1;
+    printf("captured count=%d\n", game->capturedCount);
     
     int m_count = game->moveCount;
     printf("game movecount=%d\n", game->moveCount);
