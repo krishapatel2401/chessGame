@@ -964,6 +964,12 @@ int load_game(ChessGame *game, const char *username, const char *db_filename, in
 
         while( fgets(str, str_length, fptr) != NULL){
             char *str_copy = strdup(str);
+
+            if (str_copy==NULL){
+                fclose(fptr);
+                return -1;
+            }
+
             char *token = strtok(str_copy, &delimiter);  //extracting given username
             if ( (token != NULL) && (strcmp(token, username) ==0) ){ //the extracted and given usernames match
                 username_match +=1;

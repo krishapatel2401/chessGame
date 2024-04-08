@@ -83,5 +83,5 @@ int main() {
     fprintf(temp, "%s", fen);
     fclose(temp);
     close(connfd);
-    return 1;
+    return 0;
 }
