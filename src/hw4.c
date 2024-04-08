@@ -795,7 +795,7 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
         return COMMAND_ERROR;
     }
 
-    if ( strcmp(token, "/forfeit") ==0){
+    if ( strcmp(message, "/forfeit") ==0){
         send(socketfd, message, strlen(message), 0);
         free(message_copy);
         return COMMAND_FORFEIT;
@@ -848,7 +848,6 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
     return COMMAND_UNKNOWN;
 }
 
-
 int receive_command(ChessGame *game, const char *message, int socketfd, bool is_client) {
 
     printf("socket fd=%d\n", socketfd);
@@ -874,7 +873,7 @@ int receive_command(ChessGame *game, const char *message, int socketfd, bool is_
         return COMMAND_ERROR;
     }
     // printf("here 835\n");
-    if ( strcmp(token, "/forfeit") ==0){
+    if ( strcmp(message, "/forfeit") ==0){
         close(socketfd);
         free(message_copy);
         return COMMAND_FORFEIT;
