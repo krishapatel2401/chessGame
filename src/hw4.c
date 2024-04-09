@@ -773,7 +773,8 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
     char *message_copy = strdup(message);
     printf("message copy.1=%s\n", message_copy);
     const char delimiter = ' ';
-    char *token = strtok(message_copy, &delimiter);
+    char *token = " ";
+    token = strtok(message_copy, &delimiter);
     printf("token.1=%s\n", token);
     
 
@@ -854,7 +855,8 @@ int receive_command(ChessGame *game, const char *message, int socketfd, bool is_
 
     char *message_copy = strdup(message);
     const char delimiter = ' ';
-    char *token = strtok(message_copy, &delimiter);
+    char *token  = " ";
+    token = strtok(message_copy, &delimiter);
     
     // printf("here 822\n");
     if ( strcmp(token, "/move") ==0){
@@ -919,6 +921,10 @@ int save_game(ChessGame *game, const char *username, const char *db_filename) {
     if ( (username==NULL) || ( strchr(username, ' ')!=NULL)){  //the username isn't in given format
         return -1;
     }
+    if (strcmp(username, "") ==0){
+        return -1;
+    }
+    
     FILE *fptr;
     fptr = fopen(db_filename, "a");
     if (fptr==NULL){
@@ -940,6 +946,7 @@ int save_game(ChessGame *game, const char *username, const char *db_filename) {
 
     return -1;
 }
+
 
 int load_game(ChessGame *game, const char *username, const char *db_filename, int save_number) {
     
@@ -991,6 +998,7 @@ int load_game(ChessGame *game, const char *username, const char *db_filename, in
                     }
                 }
             }
+            free(str_copy);
         }
 
 
