@@ -772,14 +772,14 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
 
     char *message_copy = strdup(message);
     printf("message copy.1=%s\n", message_copy);
-    const char delimiter = ' ';
-    char *token = " ";
-    token = strtok(message_copy, &delimiter);
+    const char *delimiter = " ";
+    // char *token = " ";
+    char *token = strtok(message_copy, delimiter);
     printf("token.1=%s\n", token);
     
 
     if ( strcmp(token, "/move") ==0){
-        token = strtok(NULL, &delimiter); //get the move string
+        token = strtok(NULL, delimiter); //get the move string
         printf("move token is=%s\n", token);
         ChessMove move;
         
@@ -818,9 +818,9 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
     }
 
     if ( strcmp(token, "/load") ==0){
-        token = strtok(NULL, &delimiter); //getting the username
+        token = strtok(NULL, delimiter); //getting the username
         char *name = strdup(token);  //creating a copy of the username
-        token = strtok(NULL, &delimiter);
+        token = strtok(NULL, delimiter);
         if (token==NULL){
             free(message_copy);
             return COMMAND_ERROR;
@@ -836,7 +836,7 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
     }
 
     if ( strcmp(token, "/save") ==0){
-        token = strtok(NULL, &delimiter);
+        token = strtok(NULL, delimiter);
         if ( save_game(game, token, "game_database.txt") ==0){
             free(message_copy);
             return COMMAND_SAVE;
@@ -851,16 +851,19 @@ int send_command(ChessGame *game, const char *message, int socketfd, bool is_cli
 
 int receive_command(ChessGame *game, const char *message, int socketfd, bool is_client) {
 
-    printf("socket fd=%d\n", socketfd);
+    // printf("socket fd=%d\n", socketfd);
 
+    if ((message==NULL) ||(strcmp(message,"")==0)){
+        return -1;
+    }
     char *message_copy = strdup(message);
-    const char delimiter = ' ';
-    char *token  = " ";
-    token = strtok(message_copy, &delimiter);
+    const char *delimiter = " ";
+    // char *token  = " ";
+    char *token = strtok(message_copy, delimiter);
     
     // printf("here 822\n");
     if ( strcmp(token, "/move") ==0){
-        token = strtok(NULL, &delimiter); //get the move string
+        token = strtok(NULL, delimiter); //get the move string
         // printf("token at 828=%s\n", token);
         ChessMove move;
         printf("here 826\n");
@@ -893,10 +896,10 @@ int receive_command(ChessGame *game, const char *message, int socketfd, bool is_
     printf("here 848\n");
     if ( strcmp(token, "/load") ==0){
         printf("message = %s\n", message);
-        token = strtok(NULL, &delimiter); //getting the username
+        token = strtok(NULL, delimiter); //getting the username
         char *name = strdup(token);  //creating a copy of the username
         printf("here 822.2\n");
-        token = strtok(NULL, &delimiter);
+        token = strtok(NULL, delimiter);
         if (token==NULL){
             return COMMAND_ERROR;
         }
@@ -910,7 +913,7 @@ int receive_command(ChessGame *game, const char *message, int socketfd, bool is_
         }
         return COMMAND_ERROR;
     }
-    printf("here 859\n");
+    // printf("here 859\n");
 
     free(message_copy);
     return -1;
@@ -956,8 +959,12 @@ int load_game(ChessGame *game, const char *username, const char *db_filename, in
     int username_match= 0;
     int username_length = strlen(username);
     int str_length = username_length + 77; //since the valid complete string we're looking for can have max this size
-    char str[str_length];
-    const char delimiter = ':';
+    char str[str_length+1];
+    for (int i=0; i< (str_length+1) ; i+=1){
+        *(str + i) = 0;
+    }
+    // *str = '\0';
+    const char *delimiter = ":";
     char fen[76] = ""; //reason in the previous function
     int fen_ind = 0;
 
@@ -969,15 +976,20 @@ int load_game(ChessGame *game, const char *username, const char *db_filename, in
     }
     else{
 
-        while( fgets(str, str_length, fptr) != NULL){
+        while( fgets(str, str_length +1, fptr) != NULL){
+            if ( strcmp(str, "") ==0){
+                return -1;
+            }
             char *str_copy = strdup(str);
+            printf("str copy=%s\n", str_copy);
+            // memset(str, 0, str_length +1);
 
             if (str_copy==NULL){
                 fclose(fptr);
                 return -1;
             }
 
-            char *token = strtok(str_copy, &delimiter);  //extracting given username
+            char *token = strtok(str_copy, delimiter);  //extracting given username
             if ( (token != NULL) && (strcmp(token, username) ==0) ){ //the extracted and given usernames match
                 username_match +=1;
                 
