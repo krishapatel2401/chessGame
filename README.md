@@ -22,26 +22,35 @@ A client-server Chess game implemented in C using the sockets API. The game allo
 
 ### 1. Build the project
 cmake -S . -B build
+
 cmake --build build
 
 
 ### 2. Run server and client (in separate terminals)
 ./build/hw4_server    # Run in one terminal
+
 ./build/hw4_client    # Run in another
 
 
 ### 3. Play the game using commands
 Start with /chessboard to view the board, then use commands like:
+
 /move e2e4
+
 /save yourname
+
 /load yourname 1
+
 /forfeit
+
 /import FEN_STRING
 
 
 ### Notes
 The client always plays White, and the server plays Black.
+
 Invalid commands or moves will be rejected with error messages.
+
 Saved games are appended to game_database.txt.
 
 Example Save Format
