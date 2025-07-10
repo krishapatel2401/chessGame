@@ -62,6 +62,8 @@ tests/actual_outputs
 pipe.client
 pipe.server
 tests/expected_outputs
+hw4_client_soln
+hw4_server_soln
 fen.txt
 *.log
 
