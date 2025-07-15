@@ -55,3 +55,5 @@ Saved games are appended to game_database.txt.
 
 Example Save Format
 username:rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w
+
+Instructor-provided test cases (that made up the original tests/ folder) have been excluded from this repository to comply with course academic integrity policies.
